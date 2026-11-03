@@ -1,0 +1,25 @@
+file,expected,rules_level,level,final,peak,decided_by,ai_label,tactics
+normal_01,normal,safe,safe,Looks normal,11,rules+ai,normal,family_emergency|urgency_fear
+normal_02,normal,safe,suspicious,"Suspicious (AI only, not fully sure)",16,ai,scam,spam_promotion|secrecy_isolation
+normal_03,normal,safe,safe,Looks normal,5,rules+ai,normal,urgency_fear
+normal_04,normal,safe,safe,Looks normal,7,rules+ai,normal,urgency_fear
+normal_05,normal,safe,safe,Looks normal,0,rules+ai,normal,
+normal_06,normal,suspicious,scam,Likely scam,50,ai,scam,otp_pin_request|family_emergency|secrecy_isolation
+normal_07,normal,safe,safe,Looks normal,0,rules+ai,normal,
+normal_08,normal,safe,suspicious,"Suspicious (AI only, not fully sure)",27,ai,scam,otp_pin_request|spam_promotion
+normal_09,normal,suspicious,safe,Looks normal,46,ai,normal,advance_fee_prize|family_emergency|secrecy_isolation
+scam_01,scam,scam,scam,Likely scam,77,rules+ai,scam,fake_kyc_block|urgency_fear|sensitive_info_request|payment_transfer_demand
+scam_02,scam,scam,scam,Likely scam,86,rules+ai,scam,fake_parcel_courier|payment_transfer_demand|family_emergency|secrecy_isolation|urgency_fear
+scam_03,scam,scam,scam,Likely scam,78,rules+ai,scam,authority_claim|urgency_fear|secrecy_isolation|sensitive_info_request|payment_transfer_demand|fake_parcel_courier
+scam_04,scam,suspicious,scam,Likely scam,60,ai,scam,advance_fee_prize|payment_transfer_demand
+scam_05,scam,suspicious,scam,Likely scam,63,ai,scam,spam_promotion|advance_fee_prize|payment_transfer_demand
+scam_06,scam,scam,scam,Likely scam,75,rules+ai,scam,authority_claim|payment_transfer_demand
+scam_07,scam,suspicious,scam,Likely scam,44,ai,scam,sensitive_info_request|secrecy_isolation|urgency_fear
+scam_08,scam,scam,scam,Likely scam,75,rules+ai,scam,family_emergency|payment_transfer_demand|urgency_fear
+scam_09,scam,scam,scam,Likely scam,79,rules+ai,scam,authority_claim|remote_app_install|fake_parcel_courier|advance_fee_prize|family_emergency|urgency_fear
+scam_10,scam,scam,scam,Likely scam,88,rules+ai,scam,authority_claim|payment_transfer_demand|otp_pin_request
+scam_11,scam,safe,scam,Likely scam,0,ai,scam,
+scam_12,scam,scam,scam,Likely scam,77,rules+ai,scam,advance_fee_prize|spam_promotion|payment_transfer_demand|urgency_fear
+spam_01,spam,spam,spam,Likely spam (unsolicited promotion),13,ai,spam,spam_promotion|urgency_fear
+spam_02,spam,safe,spam,Likely spam (unsolicited promotion),0,ai,spam,
+spam_03,spam,safe,spam,Likely spam (unsolicited promotion),0,ai,spam,

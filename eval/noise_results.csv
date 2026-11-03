@@ -1,0 +1,9 @@
+script,level,peak,errors,wer,source
+normal_01,market_hard,0,0,0.020833333333333332,cached
+normal_02,market_hard,0,0,0.14285714285714285,cached
+scam_01,market_hard,98,0,0.09033823319537605,cached
+scam_02,market_hard,83,0,0.1438605512134924,cached
+normal_01,phone_hard,0,0,0.375,cached/live
+normal_02,phone_hard,13,0,0.7083333333333334,cached
+scam_01,phone_hard,75,0,0.4410573553430696,cached
+scam_02,phone_hard,78,0,0.26011415055532705,cached

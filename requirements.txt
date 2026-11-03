@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+sentence-transformers
+numpy
+python-dotenv
+fastembed
+twilio

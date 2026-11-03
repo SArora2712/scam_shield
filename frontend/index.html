@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scam Shield</title>
+<style>
+:root{--bg:#e9eef2;--ink:#14212b;--mut:#5b6b78;--line:#c7d2da;--panel:#f7f9fa;--safe:#2f7d5b;--warn:#c98a12;--bad:#c23b2e}
+@media(prefers-color-scheme:dark){:root{--bg:#10181f;--ink:#e6edf2;--mut:#93a4b1;--line:#2a3944;--panel:#17222b;--safe:#4fb98b;--warn:#e0a83a;--bad:#ef6a5b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Noto Sans Devanagari",sans-serif}
+header{display:flex;gap:12px;align-items:center;padding:16px 24px;border-bottom:1px solid var(--line)}
+h1{font-size:20px;margin:0}.badge{border:1px solid var(--warn);color:var(--warn);padding:2px 10px;border-radius:99px;font-size:13px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+select,button,textarea{font:inherit;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px}
+button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+button.go{background:var(--ink);color:var(--bg)}
+label.opt{font-size:14px;color:var(--mut);display:flex;gap:6px;align-items:center}
+.noise{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mut)}#nlabel{min-width:150px;color:var(--ink)}
+main{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;padding:20px 24px;max-width:1100px;margin:auto}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:20px}
+main>div>section:last-child,main>section:last-child{margin-bottom:0}
+h2{font-size:15px;margin:0 0 10px;color:var(--mut)}
+#log{height:340px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.seg{padding:8px 10px;border-radius:6px;border-left:3px solid var(--line)}
+.seg b{color:var(--mut);font-weight:600;margin-right:6px}
+.seg.flag{border-left-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.seg.spam{border-left-color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,transparent)}
+.src{font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:0 8px;margin-left:6px;white-space:nowrap}
+.said{font-size:13px;color:var(--mut)}.note{font-style:italic;color:var(--mut);font-size:14px}
+.tag{display:inline-block;font-size:12px;margin:4px 4px 0 0;padding:1px 8px;border-radius:99px;background:var(--bad);color:#fff}
+.tag.spam{background:var(--warn);color:#14212b}
+#score{font-size:56px;font-weight:700;line-height:1}#lvl{color:var(--mut);margin-left:8px}
+.meter{height:14px;background:var(--line);border-radius:99px;overflow:hidden;margin:12px 0}
+#fill{height:100%;width:0;background:var(--safe);transition:width .5s,background .5s}
+ul{list-style:none;padding:0;margin:0}li{padding:3px 0;color:var(--mut)}
+li.hit{color:var(--ink);font-weight:600}li.hit::before{content:"\2713  ";color:var(--bad)}
+li:not(.hit)::before{content:"\25CB  "}
+#alert{display:none;margin-top:12px;padding:12px;border-radius:6px;background:var(--bad);color:#fff;font-weight:600}
+#status{margin-top:10px;font-size:14px;color:var(--mut);min-height:22px}
+#wa{display:none;margin-top:12px;border:1px solid var(--line);border-radius:6px;padding:10px;font-size:14px}
+#wa .st{font-weight:600}#wa .msg{color:var(--mut);margin-top:6px}
+progress{width:100%;height:8px;margin-top:6px;display:none}
+#verdict{display:none}#vlabel{font-size:24px;font-weight:700}#vmeta{color:var(--mut);font-size:14px;margin:4px 0 8px}
+#vev li{color:var(--ink);padding:4px 0;font-weight:400}#vev li::before{content:""}
+#vev q{color:var(--mut);font-size:14px}.fine{font-size:12px;color:var(--mut);margin-top:10px}
+</style></head><body>
+<header><h1>Scam Shield</h1><span class="badge">Simulated demo</span></header>
+<main>
+  <div>
+    <section>
+      <h2>Your conversation</h2>
+      <textarea id="mine" rows="6" style="width:100%"
+        placeholder="Paste a call here, one line per turn. Optional prefixes: CALLER: and VICTIM:. Or upload a .txt or an audio file below."></textarea>
+      <div class="bar" style="margin-top:8px">
+        <input type="file" id="file" accept=".txt,text/plain,audio/*,.wav,.mp3,.m4a,.ogg,.flac,.aac,.webm">
+        <button id="clear" type="button">Clear</button>
+      </div>
+      <div class="bar" style="margin-top:10px">
+        <label class="opt"><input type="radio" name="mode" value="quick" checked>Quick analysis (instant, text only)</label>
+        <label class="opt"><input type="radio" name="mode" value="voice">Speak it as a live call (slower, uses Gnani credits)</label>
+      </div>
+      <div class="bar" id="voiceopts" style="margin-top:8px;display:none">
+        <div class="noise"><span>Noise</span>
+          <input type="range" id="noise" min="0" max="5" value="0" aria-label="Noise level">
+          <span id="nlabel">Clean</span></div>
+        <label class="opt"><input type="checkbox" id="sound" checked>Play call audio</label>
+      </div>
+      <div class="bar" style="margin-top:8px">
+        <label class="opt"><input type="checkbox" id="cache" checked>Reuse saved Prisma results</label>
+      </div>
+      <div class="bar" style="margin-top:12px">
+        <button class="go" id="analyse">Analyse</button><button id="stop" disabled>Stop</button>
+        <button id="testalert" type="button">Send test alert</button>
+      </div>
+      <div id="status" role="status" aria-live="polite"></div>
+      <progress id="prog" value="0" max="1"></progress>
+    </section>
+    <section><h2>Live transcript</h2><div id="log"></div></section>
+  </div>
+  <div>
+    <section><h2>Risk</h2>
+      <div><span id="score">0</span><span id="lvl">safe</span></div>
+      <div class="meter"><div id="fill"></div></div>
+      <div id="alert"></div>
+      <div id="wa"></div>
+    </section>
+    <section id="verdict"><h2>Verdict</h2>
+      <div id="vlabel"></div><div id="vmeta"></div><div id="vai"></div>
+      <ul id="vev"></ul>
+      <div class="fine">Automatic analysis of a simulated call. It can be wrong. Do not use it as proof.</div>
+    </section>
+    <section><h2>Tactics detected</h2><ul id="tactics"></ul></section>
+  </div>
+</main>
+<script>
+const T={authority_claim:"Authority claim",urgency_fear:"Urgency / fear",secrecy_isolation:"Secrecy / isolation",otp_pin_request:"OTP / PIN request",payment_transfer_demand:"Payment / transfer demand",remote_app_install:"Remote app install",fake_kyc_block:"Fake KYC / account block",fake_parcel_courier:"Fake parcel / courier",sensitive_info_request:"Sensitive info request",advance_fee_prize:"Advance fee / prize",family_emergency:"Family emergency",investment_lure:"Investment lure",spam_promotion:"Spam / unsolicited offer"};
+const NL={clean:"Clean (16 kHz)",market:"Market noise",phone:"Phone line (8 kHz)",phone_market:"Phone + market",market_hard:"Harsh market (0 dB)",phone_hard:"Harsh phone + market"};
+const LV={safe:"safe",suspicious:"suspicious",likely_scam:"likely scam",scam:"scam"};
+const VCOL={scam:"var(--bad)",suspicious:"var(--warn)",spam:"var(--warn)",safe:"var(--safe)"};
+const $=id=>document.getElementById(id);
+let ws,levels=["clean"],actx=null,running=false,pending=null,t0=0,timer=null,lastStatus="",testTimer=null;
+
+function drawTactics(seen=[]){
+  $("tactics").innerHTML=Object.entries(T).map(([k,v])=>`<li class="${seen.includes(k)?"hit":""}">${v}</li>`).join("");
+}
+function setScore(s,l){
+  $("score").textContent=s;$("lvl").textContent=LV[l]||l;
+  const f=$("fill");f.style.width=s+"%";
+  f.style.background=s<30?"var(--safe)":s<60?"var(--warn)":"var(--bad)";
+}
+function reset(){
+  const w=$("wa");w.style.display="none";w.innerHTML="";
+  $("log").innerHTML="";$("alert").style.display="none";$("verdict").style.display="none";
+  setScore(0,"safe");drawTactics();
+}
+function mode(){return document.querySelector('input[name=mode]:checked').value;}
+function curNoise(){return levels[+$("noise").value]||"clean";}
+function syncUi(){
+  $("nlabel").textContent=NL[curNoise()]||curNoise();
+  $("voiceopts").style.display=(mode()==="voice"&&!pending)?"flex":"none";
+}
+function setStatus(t){lastStatus=t;renderStatus();}
+function renderStatus(){
+  const el=running?` \u00b7 ${Math.round((Date.now()-t0)/1000)} s`:"";
+  $("status").textContent=lastStatus?lastStatus+el:"";
+}
+function setRunning(r){
+  running=r;$("analyse").disabled=r;$("stop").disabled=!r;
+  $("analyse").textContent=r?"Analysing\u2026":"Analyse";
+  $("prog").style.display=r?"block":"none";
+  clearInterval(timer);
+  if(r){t0=Date.now();timer=setInterval(renderStatus,500);}else{renderStatus();}
+}
+fetch("/levels").then(r=>r.json()).then(l=>{levels=l;$("noise").max=l.length-1;syncUi();});
+$("noise").oninput=syncUi;
+document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=syncUi);
+
+function showAlertCard(m){
+  clearTimeout(testTimer);
+  const w=$("wa");w.innerHTML="";w.style.display="block";
+  const s=document.createElement("div");s.className="st";
+  s.textContent=m.mode==="whatsapp"&&m.sent?"WhatsApp alert sent (test, via Twilio sandbox)":m.mode==="telegram"&&m.sent?"Telegram alert sent (test)":"Family alert: on-screen mock only";
+  const d=document.createElement("div");d.textContent=m.detail;
+  const g=document.createElement("div");g.className="msg";g.textContent=m.message;
+  w.append(s,d,g);
+}
+function playB64(b64,force){
+  if(!actx||(!force&&!$("sound").checked))return;
+  const bin=atob(b64),bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  actx.decodeAudioData(bytes.buffer).then(buf=>{
+    const s=actx.createBufferSource();s.buffer=buf;s.connect(actx.destination);s.start();
+  }).catch(()=>{});
+}
+function addNote(text){
+  const d=document.createElement("div");d.className="note";d.textContent=text;
+  $("log").append(d);$("log").scrollTop=1e9;
+}
+function showVerdict(v,aiOn){
+  if(!v)return;
+  $("verdict").style.display="block";
+  const l=$("vlabel");l.textContent=v.label;l.style.color=VCOL[v.level]||"inherit";
+  $("vmeta").textContent=`Peak risk ${v.peak}/100 \u00b7 ${v.lines} line${v.lines===1?"":"s"} analysed`;
+  const ai=$("vai");ai.innerHTML="";ai.className="";
+  if(v.ai){
+    const h=document.createElement("div");h.style.fontWeight="600";
+    h.textContent=`AI analyst: ${v.ai.label} (${Math.round(v.ai.confidence*100)}%)`+(v.decided_by==="ai"?" \u00b7 this verdict comes from the AI":v.decided_by==="disagree"?" \u00b7 disagrees with the rules":"");
+    ai.append(h);
+    const r=document.createElement("div");r.className="said";r.textContent=v.ai.reason;ai.append(r);
+    if(v.ai.advice){const a=document.createElement("div");a.className="said";a.textContent="Advice: "+v.ai.advice;ai.append(a);}
+    (v.ai.evidence||[]).forEach(q=>{const e=document.createElement("div");e.className="said";e.textContent="\u201c"+q+"\u201d";ai.append(e);});
+  }else if(aiOn===false){ai.className="said";ai.textContent="AI analyst is off (no API key set). Verdict is from rules and embeddings only.";}
+  const ul=$("vev");ul.innerHTML="";
+  if(!v.evidence.length){const li=document.createElement("li");li.textContent="No scam or spam tactics found by the rules.";ul.append(li);}
+  v.evidence.forEach(e=>{
+    const li=document.createElement("li");
+    li.append(document.createTextNode((T[e.tactic]||e.tactic)+": "));
+    const q=document.createElement("q");q.textContent=e.quote;li.append(q);ul.append(li);
+  });
+}
+function handle(m){
+  if(m.type=="audio"){playB64(m.b64);return;}
+  if(m.type=="notice"){addNote(m.text);return;}
+  if(m.type=="warning"){playB64(m.b64,true);addNote("Spoken warning: "+m.text);return;}
+  if(m.type=="alert_card"){showAlertCard(m);return;}
+  if(m.type=="status"){
+    setStatus(m.text);
+    if(m.total){$("prog").max=m.total;$("prog").value=m.done||0;}
+    return;
+  }
+  if(m.type=="end"){setRunning(false);setStatus("Finished");showVerdict(m.verdict,m.ai_enabled);return;}
+  if(m.type!="segment")return;
+  const spamOnly=m.flags.length&&m.flags.every(f=>f.tactic==="spam_promotion");
+  const d=document.createElement("div");
+  d.className="seg"+(m.flags.length?(spamOnly?" spam":" flag"):"");
+  d.innerHTML=`<b>${m.who}</b>`;d.append(document.createTextNode(m.text));
+  if(m.source&&m.source!=="script"){
+    const c=document.createElement("span");c.className="src";
+    c.textContent=m.source+(m.latency_ms?` \u00b7 ${m.latency_ms} ms`:"")+(m.noise&&m.noise!=="clean"?` \u00b7 ${NL[m.noise]}`:"");
+    d.append(c);
+  }
+  if(m.said&&m.noise!=="clean"){
+    const s=document.createElement("div");s.className="said";s.textContent="said: "+m.said;d.append(s);
+  }
+  m.flags.forEach(f=>{
+    const t=document.createElement("span");t.className="tag"+(f.tactic==="spam_promotion"?" spam":"");
+    t.textContent=T[f.tactic]||f.tactic;d.append(document.createElement("br"),t);
+  });
+  $("log").append(d);$("log").scrollTop=1e9;
+  setScore(m.score,m.level);drawTactics(m.tactics);
+  if(m.alert){
+    const a=$("alert");a.style.display="block";
+    a.textContent="High risk: this call looks like a scam. The warning and the family alert are being sent.";
+  }
+}
+function connect(){
+  ws=new WebSocket((location.protocol=="https:"?"wss://":"ws://")+location.host+"/ws");
+  ws.onopen=()=>{if(!running)setStatus("Connected. Ready.");};
+  ws.onmessage=e=>{
+    let m;
+    try{m=JSON.parse(e.data);handle(m);}
+    catch(err){console.error("Scam Shield page error:",err,m);if(m&&m.type==="end"){setRunning(false);}}
+  };
+  ws.onclose=()=>{if(running){setRunning(false);setStatus("Connection lost. Is the server still running?");}setTimeout(connect,1000);};
+}
+connect();drawTactics();syncUi();
+
+function b64FromBytes(u8){let s="";const C=0x8000;for(let i=0;i<u8.length;i+=C)s+=String.fromCharCode.apply(null,u8.subarray(i,i+C));return btoa(s);}
+async function fileToPcm16k(file,maxSec=180){
+  const buf=await file.arrayBuffer();
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  const audio=await ctx.decodeAudioData(buf);ctx.close();
+  const secs=Math.min(audio.duration,maxSec);
+  const off=new OfflineAudioContext(1,Math.ceil(secs*16000),16000);
+  const src=off.createBufferSource();src.buffer=audio;src.connect(off.destination);src.start();
+  const f=(await off.startRendering()).getChannelData(0);
+  const pcm=new Int16Array(f.length);
+  for(let i=0;i<f.length;i++){const s=Math.max(-1,Math.min(1,f[i]));pcm[i]=s<0?s*32768:s*32767;}
+  return {b64:b64FromBytes(new Uint8Array(pcm.buffer)),seconds:f.length/16000,cut:audio.duration>maxSec};
+}
+function clearInput(){pending=null;$("file").value="";$("mine").value="";$("mine").disabled=false;syncUi();setStatus("");}
+$("clear").onclick=clearInput;
+$("file").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  pending=null;$("mine").disabled=false;
+  if(/\.txt$/i.test(f.name)||f.type==="text/plain"){
+    $("mine").value=await f.text();setStatus(`Loaded ${f.name}`);syncUi();return;
+  }
+  setStatus("Reading audio file\u2026");
+  try{
+    const r=await fileToPcm16k(f);
+    pending={b64:r.b64,name:f.name,seconds:r.seconds};
+    $("mine").value="";$("mine").disabled=true;
+    setStatus(`Audio ready: ${f.name}, ${Math.round(r.seconds)} s`+(r.cut?" (only the first 3 minutes are used)":"")+". Press Analyse.");
+  }catch(err){
+    $("file").value="";
+    setStatus("Could not read this audio file in your browser. Try WAV or MP3.");
+  }
+  syncUi();
+};
+$("analyse").onclick=()=>{
+  if(!ws||ws.readyState!==1){setStatus("Not connected to the server. Is it running?");return;}
+  const text=$("mine").value.trim();
+  if(!pending&&!text){setStatus("Paste a conversation or choose a file first.");return;}
+  if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();}
+  if(actx.state==="suspended")actx.resume();
+  reset();setRunning(true);
+  setStatus(pending?"Sending audio to the server":"Starting");
+  const msg={action:"start",noise:curNoise(),fresh:!$("cache").checked};
+  if(pending){msg.audio_b64=pending.b64;}else{msg.text=text;msg.mode=mode();}
+  ws.send(JSON.stringify(msg));
+};
+$("stop").onclick=()=>ws.send(JSON.stringify({action:"end"}));
+$("testalert").onclick=()=>{
+  if(!ws||ws.readyState!==1){setStatus("Not connected to the server. Is it running?");return;}
+  if(!actx){actx=new (window.AudioContext||window.webkitAudioContext)();}
+  setStatus("Sending a test alert\u2026");
+  ws.send(JSON.stringify({action:"test_alert"}));
+  clearTimeout(testTimer);
+  testTimer=setTimeout(()=>setStatus("No reply from the server. backend/main.py may be missing the test_alert action, or the server was not restarted."),12000);
+};
+</script></body></html>

@@ -1,0 +1,19 @@
+# Local caches
+.cache/
+__pycache__/
+.pytest_cache/
+
+# Environment
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Audio and temporary data
+recordings/
+uploads/
+audio_cache/

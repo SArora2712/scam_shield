@@ -1,0 +1,3 @@
+label,index,peak_score,tactics,text
+scam,0,99,authority_claim|fake_kyc_block|urgency_fear|family_emergency|secrecy_isolation|otp_pin_request|remote_app_install|payment_transfer_demand,"CALLER: Namaste sir, main State Bank ke fraud department se officer bol raha hoon. VICTIM: Haan ji, boliye. CALLER: Aapke account se ek suspicious transaction hua hai, aur aapka KYC update nahi hai, a"
+normal,0,75,sensitive_info_request|authority_claim|otp_pin_request|urgency_fear,"CALLER: Hello sir, main HDFC bank se bol rahi hoon, aapka credit card ka statement ready hai. VICTIM: Haan, theek hai. CALLER: Koi payment baaki nahi hai, bas bata rahi thi ki app mein dekh sakte hain"
